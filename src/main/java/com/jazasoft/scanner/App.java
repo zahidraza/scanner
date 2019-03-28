@@ -6,19 +6,26 @@ import com.google.zxing.common.HybridBinarizer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 public class App {
-    private long SLEEP_INTERVAL = 1000L; //1 second
+    private long SLEEP_INTERVAL = 2000L; //1 second
 
-    private void readSpeedDial() {
+    private void readDialPad() {
+        System.out.println("Reading Dial Pad Input");
+
+        Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.println("Reading Dial Pad Input");
+            System.out.println("Enter some value");
             //Read Dial Pad Input
 
+            Integer in = scanner.nextInt();
+            System.out.println("Read data = " + in);
             // If data received from dail pad, process it
 
             // else
@@ -35,16 +42,20 @@ public class App {
 
         while (true) {
             String dateTime = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
-            String filename = "snap_" + dateTime + ".png";
+            String filename = "snap_" + dateTime + ".jpg";
 
             new RaspiStill().capturePicture(filename);
 
             File file = new File(filename);
 
             try {
+                long start = System.currentTimeMillis();
                 String output = decodeQRCode(file);
+                long time = System.currentTimeMillis()-start;
+
                 if (output != null) {
-                    System.out.println("QR code read successfuly: \n " + output);
+                    System.out.println("QR code read successfuly: [" + time + "ms]\n" + output);
+                    sendData(output);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -80,23 +91,55 @@ public class App {
         }
     }
 
+    public void sendData(String data){
+        Boolean result = false;
+        String urlString = "http://zahid.local:8011/api/qr?";
+        String body = "data=" + data;
+
+        try{
+            URL url = new URL(urlString);
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+
+            conn.setRequestMethod("POST");
+            conn.setDoInput(true);
+            conn.setDoOutput(true);
+
+            DataOutputStream writer = new DataOutputStream(conn.getOutputStream());
+            writer.writeBytes(body);
+            writer.flush();
+            writer.close();
+
+            conn.connect();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+
+            StringBuffer buffer = new StringBuffer();
+            String line;
+            while ((line = br.readLine()) != null) {
+                buffer.append(line);
+            }
+            br.close();
+
+            String response = buffer.toString();
+
+            System.out.println("Response = " + response);
+
+
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
 
         final App app = new App();
-
-//        File file = new File("MyQRCode2.png");
-//        try {
-//            System.out.println(app.decodeQRCode(file));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-
+        
         Runnable taskQR = app::readQR;
-//        Runnable taskSpeedDail = app::readSpeedDial;
+        Runnable taskSpeedDail = app::readDialPad;
 
         //start task
         new Thread(taskQR).start();
-//        new Thread(taskSpeedDail).start();
+        new Thread(taskSpeedDail).start();
 
 
         while (true) {

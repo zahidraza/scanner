@@ -5,7 +5,7 @@ public class RaspiStill {
     // Define the path to the raspistill executable.
     private final String _raspistillPath = "/opt/vc/bin/raspistill";
     // Define the amount of time that the camera will use to take a photo.
-    private final int _picTimeout = 2000;
+    private final int _picTimeout = 100;
     // Define the image quality.
     private final int _picQuality = 100;
 
@@ -40,6 +40,7 @@ public class RaspiStill {
 
             // Add parameters for no preview and burst mode.
             sb.append(" -n -bm");
+//            sb.append(" -n");
             // Configure the camera timeout.
             sb.append(" -t " + _picTimeout);
             // Configure the picture width.
