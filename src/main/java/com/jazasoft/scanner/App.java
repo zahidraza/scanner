@@ -6,36 +6,25 @@ import com.google.zxing.common.HybridBinarizer;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.beans.PropertyChangeEvent;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
 
 public class App {
     private long SLEEP_INTERVAL = 100L; //1 second
 
-    private void readDialPad() {
+    private void readKeyPad() {
         System.out.println("Reading Dial Pad Input");
 
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("Enter some value");
-            //Read Dial Pad Input
-
-            Integer in = scanner.nextInt();
-            System.out.println("Read data = " + in);
-            // If data received from dail pad, process it
-
-            // else
-            // Sleep
-            try {
-                Thread.sleep(SLEEP_INTERVAL);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+        PiezoKeyPad keyPad = new PiezoKeyPad();
+        keyPad.addChangeListener((PropertyChangeEvent evt) -> {
+                System.out.println(evt.getNewValue());
             }
-        }
+        );
+
     }
 
     private void readQR(){
@@ -135,12 +124,11 @@ public class App {
         final App app = new App();
         
         Runnable taskQR = app::readQR;
-        Runnable taskSpeedDail = app::readDialPad;
+        Runnable taskKeyPad = app::readKeyPad;
 
         //start task
         new Thread(taskQR).start();
-        new Thread(taskSpeedDail).start();
-
+        new Thread(taskKeyPad).start();
 
         while (true) {
             try {
