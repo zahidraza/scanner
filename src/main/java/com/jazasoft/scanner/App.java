@@ -14,7 +14,7 @@ import java.util.Date;
 import java.util.Scanner;
 
 public class App {
-    private long SLEEP_INTERVAL = 2000L; //1 second
+    private long SLEEP_INTERVAL = 100L; //1 second
 
     private void readDialPad() {
         System.out.println("Reading Dial Pad Input");

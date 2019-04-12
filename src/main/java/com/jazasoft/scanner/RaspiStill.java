@@ -10,9 +10,11 @@ public class RaspiStill {
     private final int _picQuality = 100;
 
     // Specify a default image width.
-    private int _picWidth = 1024;
+//    private int _picWidth = 1024;
+    private int _picWidth = 720;
     // Specify a default image height.
-    private int _picHeight = 768;
+//    private int _picHeight = 768;
+    private int _picHeight = 480;
     // Specify a default image name.
     private String _picName = "example.jpg";
     // Specify a default image encoding.
@@ -53,7 +55,7 @@ public class RaspiStill {
             sb.append(" -e " + _picType);
             // Specify the name of the image.
             sb.append(" -o " + _picName);
-            System.out.println("Taking picture...");
+//            System.out.println("Taking picture...");
             long timeStart = System.currentTimeMillis();
             // Invoke raspistill to take the photo.
             Process p = Runtime.getRuntime().exec(sb.toString());
@@ -61,7 +63,7 @@ public class RaspiStill {
 //            Thread.sleep(_picTimeout);
 
             p.waitFor();
-            System.out.println("picture taken... [" + (System.currentTimeMillis()-timeStart) + "ms]");
+//            System.out.println("picture taken... [" + (System.currentTimeMillis()-timeStart) + "ms]");
         }
         catch (Exception e)
         {
